@@ -1,4 +1,4 @@
-FOR IMAGE UPLOAD -left
+FOR IMAGE UPLOAD -ayush
 steps
 1 icon - createPost component line 94 to 97 CIImageOn uncomment
 <!-- in post controller (added code ) -->
@@ -37,7 +37,7 @@ Comment
 2 changed post model added comment which is an array and store the comment text and commented user id 
 3 added commentOnPost func in post controller 
 
-Retweet 
+Retweet -dewa
 1 uncomment retweet icon (frontend) in post.jsx
 2 changed user model and postmodel added retweetedpost and retweets which is an array
 3 in post controller made retweeted post 
@@ -46,3 +46,9 @@ Retweet
 delete post
 1 frontend 180 188 button
 2 added deletePost in Post controller 38 line
+
+bookmarks -- extra 
+1 In sidebar uncomment 74 - 82
+2 made notification model for db
+3 made bookmark controller
+4 made bookmark frontend - BookmarkPage.jsx
