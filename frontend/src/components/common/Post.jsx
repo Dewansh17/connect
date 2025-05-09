@@ -17,8 +17,10 @@ const Post = ({ post }) => {
 	const queryClient = useQueryClient();
 	const postOwner = post.user;
 	const isLiked = post.likes.includes(authUser._id);
+	const isRetweeted = post.retweets.includes(authUser._id);
 
 	const isMyPost = authUser._id === post.user._id;
+	const isRetweet = post.retweetedFrom;
 
 	const formattedDate = formatPostDate(post.createdAt);
 
@@ -108,6 +110,36 @@ const Post = ({ post }) => {
 		},
 	});
 
+	const { mutate: retweetPost, isPending: isRetweeting } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/retweet/${post._id}`, {
+					method: "POST",
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: (updatedRetweets) => {
+			queryClient.setQueryData(["posts"], (oldData) => {
+				return oldData.map((p) => {
+					if (p._id === post._id) {
+						return { ...p, retweets: updatedRetweets };
+					}
+					return p;
+				});
+			});
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+	});
+
 	const handleDeletePost = () => {
 		deletePost();
 	};
@@ -123,6 +155,11 @@ const Post = ({ post }) => {
 		likePost();
 	};
 
+	const handleRetweet = () => {
+		if (isRetweeting) return;
+		retweetPost();
+	};
+
 	return (
 		<>
 			<div className='flex gap-2 items-start p-4 border-b border-gray-700'>
@@ -133,6 +170,12 @@ const Post = ({ post }) => {
 				</div>
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>
+						{isRetweet && (
+							<div className='flex items-center gap-1 text-gray-500 text-sm'>
+								<BiRepost className='w-4 h-4' />
+								<span>Retweeted by {postOwner.fullName}</span>
+							</div>
+						)}
 						<Link to={`/profile/${postOwner.username}`} className='font-bold'>
 							{postOwner.fullName}
 						</Link>
@@ -146,7 +189,6 @@ const Post = ({ post }) => {
 								{!isDeleting && (
 									<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />
 								)}
-
 								{isDeleting && <LoadingSpinner size='sm' />}
 							</span>
 						)}
@@ -222,9 +264,14 @@ const Post = ({ post }) => {
 									<button className='outline-none'>close</button>
 								</form>
 							</dialog>
-							<div className='flex gap-1 items-center group cursor-pointer'>
-								<BiRepost className='w-6 h-6  text-slate-500 group-hover:text-green-500' />
-								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
+							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleRetweet}>
+								{isRetweeting && <LoadingSpinner size='sm' />}
+								{!isRetweeting && (
+									<BiRepost className={`w-6 h-6 text-slate-500 group-hover:text-green-500 ${isRetweeted ? 'text-green-500' : ''}`} />
+								)}
+								<span className={`text-sm text-slate-500 group-hover:text-green-500 ${isRetweeted ? 'text-green-500' : ''}`}>
+									{post.retweets.length}
+								</span>
 							</div>
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
 								{isLiking && <LoadingSpinner size='sm' />}

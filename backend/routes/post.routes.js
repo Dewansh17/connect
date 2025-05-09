@@ -1,0 +1,1 @@
+router.post("/retweet/:id", protectRoute, retweetPost); 

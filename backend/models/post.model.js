@@ -19,6 +19,20 @@ const postSchema = new mongoose.Schema(
 				ref: "User",
 			},
 		],
+		retweets: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User",
+			},
+		],
+		retweetedFrom: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Post",
+		},
+		retweetedBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
 		comments: [
 			{
 				text: {

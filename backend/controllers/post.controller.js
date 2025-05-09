@@ -227,3 +227,49 @@ export const getUserPosts = async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 };
+
+export const retweetPost = async (req, res) => {
+	try {
+		const { id: postId } = req.params;
+		const userId = req.user._id;
+
+		const post = await Post.findById(postId);
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
+
+		const isRetweeted = post.retweets.includes(userId);
+
+		if (isRetweeted) {
+			// Remove retweet
+			await Post.findByIdAndUpdate(postId, {
+				$pull: { retweets: userId },
+			});
+			// Delete the retweet post
+			await Post.findOneAndDelete({ 
+				user: userId,
+				retweetedFrom: postId 
+			});
+		} else {
+			// Add retweet
+			await Post.findByIdAndUpdate(postId, {
+				$push: { retweets: userId },
+			});
+			// Create a new post for the retweet
+			const newRetweet = new Post({
+				user: userId,
+				text: post.text,
+				img: post.img,
+				retweetedFrom: postId,
+				retweetedBy: userId
+			});
+			await newRetweet.save();
+		}
+
+		const updatedPost = await Post.findById(postId);
+		res.status(200).json(updatedPost.retweets);
+	} catch (error) {
+		console.log("Error in retweetPost controller: ", error.message);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
