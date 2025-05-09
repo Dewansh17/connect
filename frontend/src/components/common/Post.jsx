@@ -18,6 +18,7 @@ const Post = ({ post }) => {
 	const postOwner = post.user;
 	const isLiked = post.likes.includes(authUser._id);
 	const isRetweeted = post.retweets.includes(authUser._id);
+	const isBookmarked = authUser.bookmarks?.includes(post._id);
 
 	const isMyPost = authUser._id === post.user._id;
 	const isRetweet = post.retweetedFrom;
@@ -140,6 +141,31 @@ const Post = ({ post }) => {
 		},
 	});
 
+	const { mutate: bookmarkPost, isPending: isBookmarking } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/bookmark/${post._id}`, {
+					method: "POST",
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: (updatedBookmarks) => {
+			queryClient.setQueryData(["authUser"], (oldData) => {
+				return { ...oldData, bookmarks: updatedBookmarks };
+			});
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+	});
+
 	const handleDeletePost = () => {
 		deletePost();
 	};
@@ -158,6 +184,11 @@ const Post = ({ post }) => {
 	const handleRetweet = () => {
 		if (isRetweeting) return;
 		retweetPost();
+	};
+
+	const handleBookmarkPost = () => {
+		if (isBookmarking) return;
+		bookmarkPost();
 	};
 
 	return (
@@ -292,7 +323,13 @@ const Post = ({ post }) => {
 							</div>
 						</div>
 						<div className='flex w-1/3 justify-end gap-2 items-center'>
-							<FaRegBookmark className='w-4 h-4 text-slate-500 cursor-pointer' />
+							{isBookmarking && <LoadingSpinner size='sm' />}
+							{!isBookmarking && (
+								<FaRegBookmark 
+									className={`w-4 h-4 cursor-pointer ${isBookmarked ? 'text-blue-500' : 'text-slate-500'}`} 
+									onClick={handleBookmarkPost}
+								/>
+							)}
 						</div>
 					</div>
 				</div>

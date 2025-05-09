@@ -3,7 +3,7 @@ import PostSkeleton from "../skeletons/PostSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-const Posts = ({ feedType, username, userId }) => {
+const Posts = ({ feedType, username, userId, posts }) => {
 	const getPostEndpoint = () => {
 		switch (feedType) {
 			case "forYou":
@@ -14,6 +14,8 @@ const Posts = ({ feedType, username, userId }) => {
 				return `/api/posts/user/${username}`;
 			case "likes":
 				return `/api/posts/likes/${userId}`;
+			case "bookmarks":
+				return "/api/posts/bookmarks";
 			default:
 				return "/api/posts/all";
 		}
@@ -22,12 +24,12 @@ const Posts = ({ feedType, username, userId }) => {
 	const POST_ENDPOINT = getPostEndpoint();
 
 	const {
-		data: posts,
+		data: fetchedPosts,
 		isLoading,
 		refetch,
 		isRefetching,
 	} = useQuery({
-		queryKey: ["posts"],
+		queryKey: ["posts", feedType, username, userId],
 		queryFn: async () => {
 			try {
 				const res = await fetch(POST_ENDPOINT);
@@ -42,11 +44,17 @@ const Posts = ({ feedType, username, userId }) => {
 				throw new Error(error);
 			}
 		},
+		enabled: !posts, // Only fetch if posts prop is not provided
 	});
 
 	useEffect(() => {
-		refetch();
-	}, [feedType, refetch, username]);
+		if (!posts) {
+			refetch();
+		}
+	}, [feedType, refetch, username, posts]);
+
+	// Use provided posts if available, otherwise use fetched posts
+	const displayPosts = posts || fetchedPosts;
 
 	return (
 		<>
@@ -57,12 +65,12 @@ const Posts = ({ feedType, username, userId }) => {
 					<PostSkeleton />
 				</div>
 			)}
-			{!isLoading && !isRefetching && posts?.length === 0 && (
+			{!isLoading && !isRefetching && displayPosts?.length === 0 && (
 				<p className='text-center my-4'>No posts in this tab. Switch 👻</p>
 			)}
-			{!isLoading && !isRefetching && posts && (
+			{!isLoading && !isRefetching && displayPosts && (
 				<div>
-					{posts.map((post) => (
+					{displayPosts.map((post) => (
 						<Post key={post._id} post={post} />
 					))}
 				</div>

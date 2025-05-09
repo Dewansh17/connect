@@ -273,3 +273,60 @@ export const retweetPost = async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 };
+
+export const bookmarkPost = async (req, res) => {
+	try {
+		const userId = req.user._id;
+		const { id: postId } = req.params;
+
+		const post = await Post.findById(postId);
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
+
+		const user = await User.findById(userId);
+		const isBookmarked = user.bookmarks.includes(postId);
+
+		if (isBookmarked) {
+			// Remove bookmark
+			await User.findByIdAndUpdate(userId, {
+				$pull: { bookmarks: postId },
+			});
+		} else {
+			// Add bookmark
+			await User.findByIdAndUpdate(userId, {
+				$push: { bookmarks: postId },
+			});
+		}
+
+		const updatedUser = await User.findById(userId);
+		res.status(200).json(updatedUser.bookmarks);
+	} catch (error) {
+		console.log("Error in bookmarkPost controller: ", error.message);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
+
+export const getBookmarkedPosts = async (req, res) => {
+	try {
+		const userId = req.user._id;
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const bookmarkedPosts = await Post.find({ _id: { $in: user.bookmarks } })
+			.sort({ createdAt: -1 })
+			.populate({
+				path: "user",
+				select: "-password",
+			})
+			.populate({
+				path: "comments.user",
+				select: "-password",
+			});
+
+		res.status(200).json(bookmarkedPosts);
+	} catch (error) {
+		console.log("Error in getBookmarkedPosts controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+};
