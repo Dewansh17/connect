@@ -1,6 +1,6 @@
 FOR IMAGE UPLOAD -ayush
 steps
-1 icon - createPost component line 94 to 97 CIImageOn uncomment
+1 icon - createPost component line 94 to 97  uncomment
 <!-- in post controller (added code ) -->
 2 added img in 
 3 let { img } = req.body;
@@ -32,7 +32,7 @@ Edit profile -pama
 3 In user controller add Updateuser Function update only if curr pasword is correct and update the db 
     using line of user user = await user.save();
 
-Comment 
+Comment -done
 1 uncomment comment icon (frontend) in post.jsx
 2 changed post model added comment which is an array and store the comment text and commented user id 
 3 added commentOnPost func in post controller 
@@ -43,7 +43,7 @@ Retweet -dewa
 3 in post controller made retweeted post 
 
 
-delete post
+delete post -done
 1 frontend 180 188 button
 2 added deletePost in Post controller 38 line
 
@@ -52,3 +52,9 @@ bookmarks -- extra
 2 made notification model for db
 3 made bookmark controller
 4 made bookmark frontend - BookmarkPage.jsx
+5 uncomment post.jsx 324 to 330
+`
+emoji -- extra
+1 in CreatePost.jsx uncomment BsEmojiSmileFill
+2 in post model add emoji which is an array
+3 in post controller add emoji to post

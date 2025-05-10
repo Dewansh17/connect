@@ -19,6 +19,7 @@
 		"cors": "^2.8.5",
 		"daisyui": "^5.0.35",
 		"dotenv": "^16.4.5",
+		"emoji-picker-react": "^4.12.2",
 		"express": "^4.19.2",
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.3.1"

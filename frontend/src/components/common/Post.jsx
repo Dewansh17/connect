@@ -63,11 +63,9 @@ const Post = ({ post }) => {
 			}
 		},
 		onSuccess: (updatedLikes) => {
-			// this is not the best UX, bc it will refetch all posts
-			// queryClient.invalidateQueries({ queryKey: ["posts"] });
-
-			// instead, update the cache directly for that post
-			queryClient.setQueryData(["posts"], (oldData) => {
+			// Update the cache for all post queries
+			queryClient.setQueriesData({ queryKey: ["posts"] }, (oldData) => {
+				if (!oldData) return oldData;
 				return oldData.map((p) => {
 					if (p._id === post._id) {
 						return { ...p, likes: updatedLikes };
@@ -203,8 +201,8 @@ const Post = ({ post }) => {
 					<div className='flex gap-2 items-center'>
 						{isRetweet && (
 							<div className='flex items-center gap-1 text-gray-500 text-sm'>
-								<BiRepost className='w-4 h-4' />
-								<span>Retweeted by {postOwner.fullName}</span>
+								{/* <BiRepost className='w-4 h-4' /> */}
+								{/* <span>Retweeted by {postOwner.fullName}</span> */}
 							</div>
 						)}
 						<Link to={`/profile/${postOwner.username}`} className='font-bold'>
@@ -295,7 +293,7 @@ const Post = ({ post }) => {
 									<button className='outline-none'>close</button>
 								</form>
 							</dialog>
-							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleRetweet}>
+							{/* <div className='flex gap-1 items-center group cursor-pointer' onClick={handleRetweet}>
 								{isRetweeting && <LoadingSpinner size='sm' />}
 								{!isRetweeting && (
 									<BiRepost className={`w-6 h-6 text-slate-500 group-hover:text-green-500 ${isRetweeted ? 'text-green-500' : ''}`} />
@@ -303,7 +301,7 @@ const Post = ({ post }) => {
 								<span className={`text-sm text-slate-500 group-hover:text-green-500 ${isRetweeted ? 'text-green-500' : ''}`}>
 									{post.retweets.length}
 								</span>
-							</div>
+							</div> */}
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
 								{isLiking && <LoadingSpinner size='sm' />}
 								{!isLiked && !isLiking && (
@@ -323,13 +321,13 @@ const Post = ({ post }) => {
 							</div>
 						</div>
 						<div className='flex w-1/3 justify-end gap-2 items-center'>
-							{isBookmarking && <LoadingSpinner size='sm' />}
+							{/* {isBookmarking && <LoadingSpinner size='sm' />}
 							{!isBookmarking && (
 								<FaRegBookmark 
 									className={`w-4 h-4 cursor-pointer ${isBookmarked ? 'text-blue-500' : 'text-slate-500'}`} 
 									onClick={handleBookmarkPost}
 								/>
-							)}
+							)} */}
 						</div>
 					</div>
 				</div>

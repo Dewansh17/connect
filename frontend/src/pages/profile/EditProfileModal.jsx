@@ -34,12 +34,12 @@ const EditProfileModal = ({ authUser }) => {
 
 	return (
 		<>
-			<button
+			{/* <button
 				className='btn btn-outline rounded-full btn-sm'
 				onClick={() => document.getElementById("edit_profile_modal").showModal()}
 			>
 				Edit profile
-			</button>
+			</button> */}
 			<dialog id='edit_profile_modal' className='modal'>
 				<div className='modal-box border rounded-md border-gray-700 shadow-md'>
 					<h3 className='font-bold text-lg my-3'>Update Profile</h3>

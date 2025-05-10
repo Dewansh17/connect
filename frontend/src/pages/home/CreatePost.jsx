@@ -4,10 +4,12 @@ import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import EmojiPicker from 'emoji-picker-react';
 
 const CreatePost = () => {
 	const [text, setText] = useState("");
 	const [img, setImg] = useState(null);
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 	const imgRef = useRef(null);
 
 	const { data: authUser } = useQuery({ queryKey: ["authUser"] });
@@ -62,6 +64,11 @@ const CreatePost = () => {
 		}
 	};
 
+	const onEmojiClick = (emojiObject) => {
+		setText((prevText) => prevText + emojiObject.emoji);
+		setShowEmojiPicker(false);
+	};
+
 	return (
 		<div className='flex p-4 items-start gap-4 border-b border-gray-700'>
 			<div className='avatar'>
@@ -90,12 +97,22 @@ const CreatePost = () => {
 				)}
 
 				<div className='flex justify-between border-t py-2 border-t-gray-700'>
-					<div className='flex gap-1 items-center'>
-						<CiImageOn
+					<div className='flex gap-1 items-center relative'>
+						{/* <CiImageOn
 							className='fill-primary w-6 h-6 cursor-pointer'
 							onClick={() => imgRef.current.click()}
-						/>
-						<BsEmojiSmileFill className='fill-primary w-5 h-5 cursor-pointer' />
+						/> */}
+						<div className='relative'>
+							{/* <BsEmojiSmileFill 
+								className='fill-primary w-5 h-5 cursor-pointer' 
+								onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+							/> */}
+							{showEmojiPicker && (
+								<div className='absolute top-8 left-0 z-50'>
+									<EmojiPicker onEmojiClick={onEmojiClick} />
+								</div>
+							)}
+						</div>
 					</div>
 					<input type='file' accept='image/*' hidden ref={imgRef} onChange={handleImgChange} />
 					<button className='btn btn-primary rounded-full btn-sm text-white px-4'>
